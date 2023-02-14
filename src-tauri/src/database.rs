@@ -63,13 +63,10 @@ impl Database {
         let id = self.counter.fetch_add(1, Ordering::Relaxed);
         let item = Item::new(id);
 
-        match self.items.lock() {
-            Ok(mut vec) => vec.push(item.clone()),
-            Err(err) => {
-                panic!("create_item failed : {}", err)
-            }
-        }
-
+        self.items
+            .lock()
+            .expect("Database::create_item failed: can't lock `items`")
+            .push(item.clone());
         item
     }
 }
